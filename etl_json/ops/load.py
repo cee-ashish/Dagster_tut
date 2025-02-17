@@ -1,40 +1,26 @@
-import psycopg2
-from dagster import op, job
+from dagster import op
 
-@op
-def load(data):
-
-    if data != None:
-        
-        conn = psycopg2.connect(
-            dbname="test_db",  
-            user="postgres",  
-            password="postgres", 
-            host="localhost", 
-            port="5432"  
-        )
-        
-        cur = conn.cursor()
-        
-        
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                age INTEGER NOT NULL
-            )
-        """)
-
-        
-        for record in data:
-            cur.execute("INSERT INTO users (name, age) VALUES (%s, %s)", (record["name"], record["age"]))
-
-    
-        conn.commit()
-
-    
-        cur.close()
-        conn.close()
-
-    else:
+@op(required_resource_keys={"db"})
+def load(context, data):
+    """Load data into the SQLite database using Dagster's resource."""
+    if not data:
         raise ValueError("Data is empty")
+
+    conn = context.resources.db.get_connection()  # Get connection from resource
+    cur = conn.cursor()
+
+    # Create table if not exists
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            age INTEGER NOT NULL
+        )
+    """)
+
+    # Insert data
+    for record in data:
+        cur.execute("INSERT INTO users (name, age) VALUES (?, ?)", (record["name"], record["age"]))
+    
+    conn.commit()
+    cur.close()
