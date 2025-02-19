@@ -1,8 +1,8 @@
 import json
-from dagster import op , job
+from dagster import op
 
 @op
-def extract():
-    with open("example_files/employee.json", "r") as f:
-        data = json.load(f)
+def extract_data():
+    with open("/home/root1/AshishSherawat/Sample_pipeline/example_files/employee.json", "r") as file:
+        data = json.load(file)
     return data

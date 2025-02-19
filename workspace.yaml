@@ -1,2 +1,4 @@
 load_from:
-  - python_module: etl_json.repository
+  - python_module:
+      module_name: etl_json.repository  
+      

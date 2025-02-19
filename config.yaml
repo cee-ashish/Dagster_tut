@@ -1,0 +1,4 @@
+resources:
+  db:
+    config:
+      db_path: "my_user.db"

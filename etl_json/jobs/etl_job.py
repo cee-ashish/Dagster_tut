@@ -1,11 +1,9 @@
 from dagster import job
-from etl_json.ops.extract import extract
-from etl_json.ops.transform import transform
-from etl_json.ops.load import load
-from etl_json.resources.sqllite_connection import sqlite_resource  # ✅ Import the resource
+from etl_json.ops.extract import extract_data
+from etl_json.ops.transform import transform_data
+from etl_json.ops.load_sqlite import load_data
+from etl_json.resources.sqllite_connection import sqlite_resource
 
-@job(resource_defs={"db": sqlite_resource})  # ✅ Register the SQLite resource
-def etl_job():
-    data = extract()
-    transformed_data = transform(data)
-    load(transformed_data)
+@job(resource_defs={"sqlite_resource": sqlite_resource})
+def my_etl_job():
+    load_data(transform_data(extract_data()))
